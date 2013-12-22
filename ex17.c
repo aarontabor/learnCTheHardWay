@@ -42,6 +42,13 @@ void Address_print(struct Address *addr) {
 }
 
 void Database_load(struct Connection *conn) {
+
+  // now we want to read:
+  //  1 Database
+  //  db->num_rows * Address
+  //  db->num_rows * db->max_data_size * 2 (1 for name, another for email)
+  //
+
   int rc = fread(conn->db, sizeof(struct Database), 1, conn->file);
   if(rc != 1) die("Failed to load databse.", conn);
 }
@@ -52,6 +59,14 @@ struct Connection *Database_open(const char *filename, char mode) {
 
   conn->db = malloc(sizeof(struct Database));
   if(!conn->db) die("Memory error", conn);
+
+  // got to malloc the rest of the required memory (so that file can be loaded)
+  // this means:
+  //  db->rows
+  //  for each row
+  //    address->name
+  //    address->email
+  //
 
   if(mode == 'c') {
     conn->file = fopen(filename, "w");
@@ -72,12 +87,19 @@ void Database_close(struct Connection *conn) {
   if(conn) {
     if(conn->file) fclose(conn->file);
     if(conn->db) free(conn->db);
+
+    // also have to free
+    //  each addresses name and email
+    //  each address
+
     free(conn);
   }
 }
 
 void Database_write(struct Connection *conn) {
   rewind(conn->file);
+
+  // same size as in open
 
   int rc = fwrite(conn->db, sizeof(struct Database), 1, conn->file);
   if(rc != 1) die("Failed to write to database", conn);
@@ -88,6 +110,8 @@ void Database_write(struct Connection *conn) {
 
 void Database_create(struct Connection *conn) {
   int i = 0;
+
+  // I think everything is now built and connected, should just be able to substitute MAX_ROWS
 
   for(i=0; i<MAX_ROWS; i++) {
     // make a prototype to initialize it
@@ -138,6 +162,7 @@ void Database_list(struct Connection *conn) {
   int i = 0;
   struct Database *db = conn->db;
 
+  // change ths for db->max_rows
   for(i=0; i < MAX_ROWS; i++) {
     struct Address *cur = &db->rows[i];
 
@@ -147,15 +172,19 @@ void Database_list(struct Connection *conn) {
 
 
 int main(int argc, char *argv[]) {
-  if(argc < 3) die("USAGE: ex17 <dbfile> <action> [action params]", NULL);
+  if(argc < 5) die("USAGE: ex17 <dbfile> <max_rows> <max_data> <action> [action params]", NULL);
 
   char *filename = argv[1];
-  char action = argv[2][0];
+  int max_rows = atoi(argv[2]);
+  int max_data = atoi(argv[3]);
+  char action = argv[4][0];
+  //printf("max_rows: %d, max_data: %d, action: %c\n", max_rows, max_data, action);
 
+  // this will have to also take max_rows and max_data
   struct Connection *conn = Database_open(filename, action);
   int id =0;
 
-  if(argc > 3) id = atoi(argv[3]);
+  if(argc > 5) id = atoi(argv[5]);
   if(id > MAX_ROWS) die("There are not that many records", conn);
 
   switch(action) {
@@ -165,20 +194,22 @@ int main(int argc, char *argv[]) {
       break;
 
     case 'g':
-      if(argc !=4) die("Need an ID to get", conn);
+      if(argc !=6) die("Need an ID to get", conn);
 
       Database_get(conn, id);
       break;
 
     case 's':
-      if(argc != 6) die("Need ID, name, email to set", conn);
+      if(argc != 8) die("Need ID, name, email to set", conn);
 
-      Database_set(conn, id, argv[4], argv[5]);
+      char *name = argv[6];
+      char *email = argv[7];
+      Database_set(conn, id, name, email);
       Database_write(conn);
       break;
 
     case 'd':
-      if(argc != 4) die("Need an ID to delete", conn);
+      if(argc != 6) die("Need an ID to delete", conn);
 
       Database_delete(conn, id);
       Database_write(conn);
