@@ -1,0 +1,13 @@
+#!/bin/sh
+#
+# This script will test the game
+#
+
+set -e
+
+echo "Testing..."
+
+# testing goes here
+
+echo "Done. :)"
+
