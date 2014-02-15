@@ -1,5 +1,5 @@
-#ifndef _game_mechanics_h
-#define _game_mechanics_h
+#ifndef _ex19_h
+#define _ex19_h
 
 #include "object.h"
 
