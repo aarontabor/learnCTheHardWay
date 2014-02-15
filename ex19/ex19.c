@@ -139,8 +139,12 @@ int Map_init(void *self)
   Room *arena = NEW(Room, "The arena, with the minotaur");
   Room *kitchen = NEW(Room, "Kitchen, you have the knife now");
 
+  Room *arena2 = NEW(Room, "Another arena, with another boss");
+  
   // put the bad guy in the arena
   arena->bad_guy = NEW(Monster, "The evil minotaur");
+  arena2->bad_guy = NEW(Monster, "Another boss");
+
 
   // setup the map rooms
   hall->north = throne;
@@ -151,6 +155,9 @@ int Map_init(void *self)
 
   arena->east = throne;
   kitchen->west = throne;
+
+  arena->west = arena2;
+  arena2->east = arena;
 
   // start the map and character off in the hall
   map->start = hall;
