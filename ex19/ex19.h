@@ -13,6 +13,8 @@ typedef struct Monster Monster;
 int Monster_attack(void *self, int damage);
 int Monster_init(void *self);
 
+Object MonsterProto;
+
 struct Room {
 	Object proto;
 
@@ -30,6 +32,7 @@ void *Room_move(void *self, Direction direction);
 int Room_attack(void *self, int damage);
 int Room_init(void *self);
 
+Object RoomProto;
 
 struct Map {
 	Object proto;
@@ -43,6 +46,10 @@ void *Map_move(void *self, Direction direction);
 int Map_attack(void *self, int damage);
 int Map_init(void *self);
 
+Object MapProto;
+
+int process_input(Map *game);
+int run_game(Map *game);
 #endif
 
 
