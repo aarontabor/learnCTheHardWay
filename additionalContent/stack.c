@@ -8,7 +8,7 @@ struct Stack {
 
 struct Stack *createStack() {
   struct Stack *stack = malloc(sizeof(struct Stack));
-  stack->top = stack->elements;
+  stack->top = stack->elements-1;
   return stack;
 }
 
@@ -56,8 +56,10 @@ int main() {
     popped = pop(stack);
     printf("popped %d...\n", popped);
   }
+  printf("elements: %p\n", stack->elements);
+  printf("top: %p\n", stack->top);
   pop(stack);
-  pop(stack);
+  printf("popped %d...\n", popped);
 
   return 0;
 }
